@@ -1,0 +1,12 @@
+layer:
+  id: "vn_islands_pt"
+  description: description
+  buffer_size: 256
+  fields:
+    name:
+    name_en:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, name, name_en FROM layer_vn_islands_pt(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./vn_islands_pt.sql

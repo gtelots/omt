@@ -141,3 +141,8 @@ services:
       - ./data:/data
       - ./style:/style
       - ./build:/build
+
+  fonts:
+    image: ttungbmt/omt-fonts
+    ports:
+      - "8070:80"

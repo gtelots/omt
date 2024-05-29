@@ -1,0 +1,12 @@
+layer:
+  id: "wld_cities_pt"
+  description: description
+  buffer_size: 256
+  fields:
+    city_name:
+    city_name_vi:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, city_name, city_name_vi FROM layer_wld_cities_pt(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./wld_cities_pt.sql

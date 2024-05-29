@@ -1,0 +1,12 @@
+layer:
+  id: "wld_continents_pt"
+  description: description
+  buffer_size: 256
+  fields:
+    name:
+    name_vi:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, name, name_vi FROM layer_wld_continents_pt(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./wld_continents_pt.sql

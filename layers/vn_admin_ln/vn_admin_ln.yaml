@@ -1,0 +1,16 @@
+layer:
+  id: "vn_admin_ln"
+  description: description
+  buffer_size: 256
+  fields:
+    code:
+    name:
+    name_en:
+    level:
+    level_num:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, code, name, name_en, level, level_num FROM layer_vn_admin_ln(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./vn_admin_ln.sql
+

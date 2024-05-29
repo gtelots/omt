@@ -1,0 +1,12 @@
+layer:
+  id: "wld_oceans_pt"
+  description: description
+  buffer_size: 256
+  fields:
+    name:
+    name_vi:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, name, name_vi FROM layer_wld_oceans_pt(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./wld_oceans_pt.sql
