@@ -1,0 +1,13 @@
+layer:
+  id: "vn_vietnam"
+  description: description
+  buffer_size: 256
+  fields:
+    code:
+    name:
+    name_en:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, code, name, name_en FROM layer_vn_vietnam(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./vn_vietnam.sql

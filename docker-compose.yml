@@ -7,6 +7,8 @@ volumes:
 networks:
   postgres:
     driver: bridge
+  backend-net:
+    external: true
 
 services:
 
@@ -112,12 +114,13 @@ services:
 
   postserve:
     image: "openmaptiles/openmaptiles-tools:${TOOLS_VERSION}"
-    command: "postserve ${TILESET_FILE} --verbose --serve=${OMT_HOST:-http://localhost}:${PPORT:-8090}"
+    command: "postserve ${TILESET_FILE} --verbose --serve=${OMT_HOST:-http://localhost}"
     env_file: .env
     environment:
       TILESET_FILE: ${TILESET_FILE}
     networks:
       - postgres
+      - backend-net
     ports:
       - "${PPORT:-8090}:${PPORT:-8090}"
     volumes:
@@ -141,8 +144,5 @@ services:
       - ./data:/data
       - ./style:/style
       - ./build:/build
-
-  fonts:
-    image: ttungbmt/omt-fonts
-    ports:
-      - "8070:80"
+    networks:
+      - backend-net

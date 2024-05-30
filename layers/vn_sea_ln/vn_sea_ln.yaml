@@ -1,0 +1,12 @@
+layer:
+  id: "vn_sea_ln"
+  description: description
+  buffer_size: 256
+  fields:
+    name:
+    type:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, name, type FROM layer_vn_sea_ln(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./vn_sea_ln.sql

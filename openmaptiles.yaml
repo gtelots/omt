@@ -16,15 +16,18 @@ tileset:
     - layers/housenumber/housenumber.yaml
     - layers/poi/poi.yaml
     - layers/aerodrome_label/aerodrome_label.yaml
-    - layers/wld_admin_pt/wld_admin_pt.yaml
-    - layers/wld_cities_pt/wld_cities_pt.yaml
-    - layers/wld_continents_pt/wld_continents_pt.yaml
-    - layers/wld_oceans_pt/wld_oceans_pt.yaml
-    - layers/wld_seas_pt/wld_seas_pt.yaml
     - layers/vn_admin_ln/vn_admin_ln.yaml
     - layers/vn_admin_pt/vn_admin_pt.yaml
     - layers/vn_islands_pg/vn_islands_pg.yaml
     - layers/vn_islands_pt/vn_islands_pt.yaml
+    - layers/vn_sea_ln/vn_sea_ln.yaml
+    - layers/vn_vietnam/vn_vietnam.yaml
+    - layers/wld_admin_pt/wld_admin_pt.yaml
+    - layers/wld_boundary_ln/wld_boundary_ln.yaml
+    - layers/wld_cities_pt/wld_cities_pt.yaml
+    - layers/wld_continents_pt/wld_continents_pt.yaml
+    - layers/wld_oceans_pt/wld_oceans_pt.yaml
+    - layers/wld_seas_pt/wld_seas_pt.yaml
   name: OpenMapTiles
   version: 3.15.0
   id: openmaptiles

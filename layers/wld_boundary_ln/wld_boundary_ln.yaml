@@ -1,0 +1,25 @@
+layer:
+  id: "wld_boundary_ln"
+  description: description
+  buffer_size: 256
+  fields:
+    name:
+    adm0_a3_l:
+    adm0_a3_r:
+    iso3:
+    status:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, name, adm0_a3_l, adm0_a3_r, iso3, status FROM layer_wld_boundary_ln(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./wld_boundary_ln.sql
+
+
+
+
+
+
+
+
+
+
