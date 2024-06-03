@@ -5,8 +5,10 @@ layer:
   fields:
     name:
     name_en:
+    name_arch:
+    type:
   datasource:
     geometry_field: geometry
-    query: (SELECT geometry, name, name_en FROM layer_vn_islands_pt(!bbox!, z(!scale_denominator!))) AS t
+    query: (SELECT geometry, name, name_en, name_arch, type FROM layer_vn_islands_pt(!bbox!, z(!scale_denominator!))) AS t
 schema:
   - ./vn_islands_pt.sql

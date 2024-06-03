@@ -1,0 +1,10 @@
+layer:
+  id: "vn_boundary_mask"
+  description: description
+  buffer_size: 256
+  fields:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry FROM layer_vn_boundary_mask(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./vn_boundary_mask.sql

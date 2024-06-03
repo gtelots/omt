@@ -18,6 +18,7 @@ tileset:
     - layers/aerodrome_label/aerodrome_label.yaml
     - layers/vn_admin_ln/vn_admin_ln.yaml
     - layers/vn_admin_pt/vn_admin_pt.yaml
+    - layers/vn_boundary_mask/vn_boundary_mask.yaml
     - layers/vn_islands_pg/vn_islands_pg.yaml
     - layers/vn_islands_pt/vn_islands_pt.yaml
     - layers/vn_sea_ln/vn_sea_ln.yaml
