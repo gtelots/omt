@@ -1,0 +1,17 @@
+layer:
+  id: "vn_provinces_pt_v1"
+  description: description
+  buffer_size: 64
+  fields:
+    code:
+    name:
+    name_en:
+    level:
+    admin_level:
+    label:
+    rank:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, code, name, name_en, level, admin_level, label, rank FROM layer_vn_provinces_pt_v1(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./vn_provinces_pt_v1.sql

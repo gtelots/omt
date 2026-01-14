@@ -1,0 +1,15 @@
+layer:
+  id: "vn_wards_pg_v1"
+  description: description
+  buffer_size: 4
+  fields:
+    code:
+    name:
+    name_en:
+    level:
+    admin_level:
+  datasource:
+    geometry_field: geometry
+    query: (SELECT geometry, code, name, name_en, level, admin_level FROM layer_vn_wards_pg_v1(!bbox!, z(!scale_denominator!))) AS t
+schema:
+  - ./vn_wards_pg_v1.sql
