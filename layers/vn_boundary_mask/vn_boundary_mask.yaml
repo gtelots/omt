@@ -1,7 +1,7 @@
 layer:
   id: "vn_boundary_mask"
   description: description
-  buffer_size: 256
+  buffer_size: 4
   fields:
   datasource:
     geometry_field: geometry
