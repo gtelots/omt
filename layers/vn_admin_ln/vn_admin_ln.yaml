@@ -8,9 +8,11 @@ layer:
     name_en:
     level:
     level_num:
+    adminleft:
+    adminright:
   datasource:
     geometry_field: geometry
-    query: (SELECT geometry, code, name, name_en, level, level_num FROM layer_vn_admin_ln(!bbox!, z(!scale_denominator!))) AS t
+    query: (SELECT geometry, code, name, name_en, level, level_num, adminleft, adminright FROM layer_vn_admin_ln(!bbox!, z(!scale_denominator!))) AS t
 schema:
   - ./vn_admin_ln.sql
 
