@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS osm_transportation_name_linestring(
     source integer,
     geometry geometry('LineString'),
     source_ids bigint[],
+    new_source_ids bigint[],
+    old_source_ids bigint[],
     tags hstore,
     ref text,
     highway varchar,
@@ -62,6 +64,15 @@ CREATE TABLE IF NOT EXISTS osm_transportation_name_linestring(
 );
 
 ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS source_ids bigint[];
+-- Create temporary Merged-LineString to Source-LineStrings-ID columns to store relations before they have been
+-- intersected.
+ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS new_source_ids BIGINT[];
+ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS old_source_ids BIGINT[];
+
+CREATE INDEX IF NOT EXISTS osm_transportation_name_linestring_n_source_ids_not_null_idx 
+    ON osm_transportation_name_linestring ((new_source_ids IS NOT NULL));
+CREATE INDEX IF NOT EXISTS osm_transportation_name_linestring_o_source_ids_not_null_idx 
+    ON osm_transportation_name_linestring ((old_source_ids IS NOT NULL));
 
 -- Create OneToMany-Relation-Table storing relations of a Merged-LineString in table
 -- osm_transportation_name_linestring to Source-LineStrings from tables osm_transportation_name_network,
@@ -485,17 +496,19 @@ BEGIN
 
     -- etldoc: osm_transportation_name_linestring -> osm_transportation_name_linestring_gen1
     INSERT INTO osm_transportation_name_linestring_gen1 (id, geometry, tags, ref, highway, subclass, brunnel, network,
-                                                         route_1, route_2, route_3, route_4, route_5, route_6)
+                                                         route_1, route_2, route_3, route_4, route_5, route_6, z_order)
     SELECT MIN(id) as id,
            ST_Simplify(ST_LineMerge(ST_Collect(geometry)), 50) AS geometry,
            tags, ref, highway, subclass, brunnel, network,
-           route_1, route_2, route_3, route_4, route_5, route_6
+           route_1, route_2, route_3, route_4, route_5, route_6,
+           MIN(z_order) AS z_order
     FROM (
         SELECT id,
                geometry,
                tags, ref, highway, subclass,
                visible_text(geometry, brunnel, 9) AS brunnel,
-               network, route_1, route_2, route_3, route_4, route_5, route_6
+               network, route_1, route_2, route_3, route_4, route_5, route_6,
+               z_order
         FROM osm_transportation_name_linestring
     ) osm_transportation_name_linestring_gen1_pre_merge
     WHERE (
@@ -513,7 +526,7 @@ BEGIN
                                      highway = excluded.highway, subclass = excluded.subclass,
                                      brunnel = excluded.brunnel, network = excluded.network, route_1 = excluded.route_1,
                                      route_2 = excluded.route_2, route_3 = excluded.route_3, route_4 = excluded.route_4,
-                                     route_5 = excluded.route_5, route_6 = excluded.route_6;
+                                     route_5 = excluded.route_5, route_6 = excluded.route_6, z_order = excluded.z_order;
 
     -- Analyze source table
     ANALYZE osm_transportation_name_linestring_gen1;
@@ -1161,11 +1174,6 @@ BEGIN
     CREATE INDEX ON clustered_linestrings_to_merge (cluster_group, cluster);
     ANALYZE clustered_linestrings_to_merge;
 
-    -- Create temporary Merged-LineString to Source-LineStrings-ID columns to store relations before they have been
-    -- intersected
-    ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS new_source_ids BIGINT[];
-    ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS old_source_ids BIGINT[];
-
 
     WITH inserted_linestrings AS (
         -- Merge LineStrings of each cluster and insert them
@@ -1213,9 +1221,9 @@ BEGIN
     -- Cleanup remaining table
     DROP TABLE clustered_linestrings_to_merge;
 
-    -- Drop  temporary Merged-LineString to Source-LineStrings-ID columns
-    ALTER TABLE osm_transportation_name_linestring DROP COLUMN IF EXISTS new_source_ids;
-    ALTER TABLE osm_transportation_name_linestring DROP COLUMN IF EXISTS old_source_ids;
+    -- Restore temporary Merged-LineString to Source-LineStrings-ID columns
+    UPDATE osm_transportation_name_linestring SET new_source_ids = NULL WHERE new_source_ids IS NOT NULL;
+    UPDATE osm_transportation_name_linestring SET old_source_ids = NULL WHERE old_source_ids IS NOT NULL;
 
     -- noinspection SqlWithoutWhere
     DELETE FROM transportation_name.name_changes;
@@ -1349,10 +1357,6 @@ BEGIN
     CREATE INDEX ON clustered_linestrings_to_merge (cluster_group, cluster);
     ANALYZE clustered_linestrings_to_merge;
 
-    -- Create temporary Merged-LineString to Source-LineStrings-ID columns to store relations before they have been
-    -- intersected
-    ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS new_source_ids BIGINT[];
-    ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS old_source_ids BIGINT[];
 
     WITH inserted_linestrings AS (
         -- Merge LineStrings of each cluster and insert them
@@ -1395,9 +1399,9 @@ BEGIN
     -- Cleanup remaining table
     DROP TABLE clustered_linestrings_to_merge;
 
-    -- Drop  temporary Merged-LineString to Source-LineStrings-ID columns
-    ALTER TABLE osm_transportation_name_linestring DROP COLUMN IF EXISTS new_source_ids;
-    ALTER TABLE osm_transportation_name_linestring DROP COLUMN IF EXISTS old_source_ids;
+    -- Restore temporary Merged-LineString to Source-LineStrings-ID columns
+    UPDATE osm_transportation_name_linestring SET new_source_ids = NULL WHERE new_source_ids IS NOT NULL;
+    UPDATE osm_transportation_name_linestring SET old_source_ids = NULL WHERE old_source_ids IS NOT NULL;
 
     -- noinspection SqlWithoutWhere
     DELETE FROM transportation_name.shipway_changes;
@@ -1531,10 +1535,6 @@ BEGIN
     CREATE INDEX ON clustered_linestrings_to_merge (cluster_group, cluster);
     ANALYZE clustered_linestrings_to_merge;
 
-    -- Create temporary Merged-LineString to Source-LineStrings-ID columns to store relations before they have been
-    -- intersected
-    ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS new_source_ids BIGINT[];
-    ALTER TABLE osm_transportation_name_linestring ADD COLUMN IF NOT EXISTS old_source_ids BIGINT[];
 
     WITH inserted_linestrings AS (
         -- Merge LineStrings of each cluster and insert them
@@ -1577,9 +1577,9 @@ BEGIN
     -- Cleanup remaining table
     DROP TABLE clustered_linestrings_to_merge;
 
-    -- Drop  temporary Merged-LineString to Source-LineStrings-ID columns
-    ALTER TABLE osm_transportation_name_linestring DROP COLUMN IF EXISTS new_source_ids;
-    ALTER TABLE osm_transportation_name_linestring DROP COLUMN IF EXISTS old_source_ids;
+    -- Restore temporary Merged-LineString to Source-LineStrings-ID columns
+    UPDATE osm_transportation_name_linestring SET new_source_ids = NULL WHERE new_source_ids IS NOT NULL;
+    UPDATE osm_transportation_name_linestring SET old_source_ids = NULL WHERE old_source_ids IS NOT NULL;
 
     -- noinspection SqlWithoutWhere
     DELETE FROM transportation_name.aerialway_changes;
