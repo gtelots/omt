@@ -260,6 +260,65 @@ FROM (
          GROUP BY cluster_group, cluster, transportation_name_tags(
              NULL::geometry, tags, name, name_en, name_de
          ), aerialway, layer
+         UNION ALL
+
+        -- @nhan.tt
+        -- Merge LineStrings from osm_railway_linestring by grouping them and creating intersecting
+		-- clusters of each group via ST_ClusterDBSCAN
+        SELECT (ST_Dump(ST_LineMerge(ST_Union(geometry)))).geom AS geometry,
+                -- We use St_Union instead of St_Collect to ensure no overlapping points exist within the
+                -- geometries to merge. https://postgis.net/docs/ST_Union.html
+                -- ST_LineMerge only merges across singular intersections and groups its output into a
+                -- MultiLineString if more than two LineStrings form an intersection or no intersection could be
+                -- found. https://postgis.net/docs/ST_LineMerge.html
+                -- In order to not end up with a mixture of LineStrings and MultiLineStrings we dump eventual
+                -- MultiLineStrings via ST_Dump. https://postgis.net/docs/ST_Dump.html
+                array_agg(osm_id) AS source_ids,
+                3 AS source,
+                transportation_name_tags(
+                    NULL::geometry, tags, name, name_en, name_de
+                ) AS tags,
+                NULL AS ref,
+                'railway' AS highway,
+                railway AS subclass,
+                NULL AS brunnel,
+                NULL AS sac_scale,
+                NULL::int AS level,
+                layer,
+                NULL AS indoor,
+                NULL AS network_type,
+                NULL::hstore AS route_1,
+                NULL::hstore AS route_2,
+                NULL::hstore AS route_3,
+                NULL::hstore AS route_4,
+                NULL::hstore AS route_5,
+                NULL::hstore AS route_6,
+                min(z_order) AS z_order,
+                NULL::int AS route_rank
+         FROM (
+             SELECT *,
+                    -- Get intersecting clusters by setting minimum distance to 0 and minimum intersecting points
+                    -- to 1. https://postgis.net/docs/ST_ClusterDBSCAN.html
+                    ST_ClusterDBSCAN(geometry, 0, 1) OVER (
+                        PARTITION BY transportation_name_tags(
+                            NULL::geometry, tags, name, name_en, name_de
+                        ), railway, layer
+                    ) AS cluster,
+                    -- ST_ClusterDBSCAN returns an increasing integer as the cluster-ids within each partition
+                    -- starting at 0. This leads to clusters having the same ID across multiple partitions
+                    -- therefore we generate a Cluster-Group-ID by utilizing the DENSE_RANK function sorted over the
+                    -- partition columns.
+                    DENSE_RANK() OVER (
+                        ORDER BY transportation_name_tags(
+                            NULL::geometry, tags, name, name_en, name_de
+                        ), railway, layer
+                    ) as cluster_group
+             FROM osm_railway_linestring
+             WHERE name <> ''
+         ) q
+         GROUP BY cluster_group, cluster, transportation_name_tags(
+             NULL::geometry, tags, name, name_en, name_de
+         ), railway, layer
      ) AS highway_union;
 
 -- Geometry Index
