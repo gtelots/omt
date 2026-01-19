@@ -45,7 +45,7 @@ CREATE OR REPLACE FUNCTION layer_transportation_name(bbox geometry, zoom_level i
             )
 AS
 $$
-SELECT geometry,
+SELECT ST_Intersection(zoom_levels.geometry, vn_vietnam.geometry) AS geometry,
        tags->'name' AS name,
        COALESCE(tags->'name:en', tags->'name') AS name_en,
        COALESCE(tags->'name:de', tags->'name', tags->'name:en') AS name_de,
@@ -208,7 +208,7 @@ FROM (
            AND NOT highway_is_link(highway)
            AND
                CASE WHEN highway_class(highway, NULL::text, NULL::text) NOT IN ('path', 'minor') THEN TRUE
-                    WHEN highway IN ('aerialway', 'unclassified', 'residential', 'shipway') THEN TRUE
+                    WHEN highway IN ('railway', 'aerialway', 'unclassified', 'residential', 'shipway') THEN TRUE
                     WHEN route_rank = 1 THEN TRUE END
 
          UNION ALL
@@ -284,7 +284,9 @@ FROM (
          FROM osm_highway_point p
          WHERE highway = 'motorway_junction' AND zoom_level >= 10
      ) AS zoom_levels
-WHERE geometry && bbox
+JOIN vn_vietnam 
+    ON zoom_levels.geometry && vn_vietnam.geometry
+WHERE zoom_levels.geometry && bbox
 ORDER BY z_order ASC;
 $$ LANGUAGE SQL STABLE
                 -- STRICT

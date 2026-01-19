@@ -34,8 +34,8 @@ CREATE OR REPLACE FUNCTION layer_transportation(bbox geometry, zoom_level int)
             )
 AS
 $$
-SELECT osm_id,
-       geometry,
+SELECT zoom_levels.osm_id,
+       ST_Intersection(zoom_levels.geometry, vn_vietnam.geometry) AS geometry,
        CASE
            WHEN highway <> '' OR public_transport <> ''
                THEN highway_class(highway, public_transport, construction)
@@ -1050,7 +1050,9 @@ FROM (
                  OR (is_area AND COALESCE(layer, 0) >= 0)
              )
      ) AS zoom_levels
-WHERE geometry && bbox
+JOIN vn_vietnam 
+    ON zoom_levels.geometry && vn_vietnam.geometry
+WHERE zoom_levels.geometry && bbox
 ORDER BY z_order ASC;
 $$ LANGUAGE SQL STABLE
                 -- STRICT
