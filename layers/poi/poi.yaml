@@ -54,6 +54,14 @@ layer:
           __AND__:
             subclass: 'station'
             mapping_key: 'aerialway'
+        traffic_signals:
+          subclass: ['traffic_signals']
+        street_lamp:
+          subclass: ['street_lamp']
+        crossing:
+          subclass: ['crossing']
+        tree:
+          subclass: ['tree']
         entrance:
           subclass: ['subway_entrance', 'train_station_entrance']
         campsite:

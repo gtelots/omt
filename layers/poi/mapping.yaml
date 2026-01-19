@@ -75,6 +75,7 @@ def_poi_mapping_barrier: &poi_mapping_barrier
   - sally_port
   - stile
   - toll_booth
+  - hedge
 
 # building values , see http://taginfo.openstreetmap.org/keys/building#values
 def_poi_mapping_building: &poi_mapping_building
@@ -83,6 +84,9 @@ def_poi_mapping_building: &poi_mapping_building
 # highway values , see http://taginfo.openstreetmap.org/keys/highway#values
 def_poi_mapping_highway: &poi_mapping_highway
   - bus_stop
+  - traffic_signals
+  - crossing
+  - street_lamp
 
 # historic values , see http://taginfo.openstreetmap.org/keys/historic#values
 def_poi_mapping_historic: &poi_mapping_historic
@@ -445,6 +449,9 @@ def_poi_fields: &poi_fields
     key: brand
     type: string
 
+def_poi_mapping_natural: &poi_mapping_natural
+  - tree
+
 def_poi_mapping: &poi_mapping
   aerialway: *poi_mapping_aerialway
   amenity: *poi_mapping_amenity
@@ -460,6 +467,7 @@ def_poi_mapping: &poi_mapping
   sport: *poi_mapping_sport
   tourism: *poi_mapping_tourism
   waterway: *poi_mapping_waterway
+  natural: *poi_mapping_natural
 
 tables:
   # etldoc: imposm3 -> osm_poi_point
