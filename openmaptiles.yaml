@@ -29,6 +29,10 @@ tileset:
     - layers/wld_continents_pt/wld_continents_pt.yaml
     - layers/wld_oceans_pt/wld_oceans_pt.yaml
     - layers/wld_seas_pt/wld_seas_pt.yaml
+    - layers/vn_provinces_pg_v1/vn_provinces_pg_v1.yaml
+    - layers/vn_provinces_pt_v1/vn_provinces_pt_v1.yaml
+    - layers/vn_wards_pg_v1/vn_wards_pg_v1.yaml
+    - layers/vn_wards_pt_v1/vn_wards_pt_v1.yaml
   name: OpenMapTiles
   version: 3.16.0
   id: openmaptiles
