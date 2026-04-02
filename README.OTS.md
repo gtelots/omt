@@ -8,6 +8,7 @@ make clean                  # clean / remove existing build files
 make                        # generate build files
 make start-db               # start up the database container.
 make import-data            # Import external data from OpenStreetMapData, Natural Earth and OpenStreetMap Lake Labels.
+make import-custom-data format=geojson table=vn_vietnam  # Import custom data from data directory into PostgreSQL table
 make download-fonts
 make download-geofabrik area=vietnam  # download vietnam .osm.pbf file -- can be skipped if a .osm.pbf file already existing
 make import-osm             # import data into postgres

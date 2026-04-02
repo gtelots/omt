@@ -217,6 +217,7 @@ Hints for downloading & importing data:
   make import-diff                     # Import OSM updates from data/changes.osc.gz
   make import-wikidata                 # Import labels from Wikidata
   make import-sql                      # Import layers (run this after modifying layer SQL)
+	make import-custom-data format=geojson table=vn_vietnam  # Import custom data from data directory into PostgreSQL table
 
 Hints for database management:
   make psql                            # start PostgreSQL console
@@ -448,6 +449,41 @@ import-diff: start-db-nowait
 .PHONY: import-data
 import-data: start-db
 	$(DOCKER_COMPOSE) $(DC_CONFIG_CACHE) run $(DC_OPTS_CACHE) import-data
+
+.PHONY: import-custom-data
+import-custom-data: start-db
+	@if [ -z "$(format)" ]; then \
+		echo "ERROR: format is required. Example: make import-custom-data format=geojson"; \
+		exit 1; \
+	fi
+	@if [ -n "$(table)" ]; then \
+		echo "Importing $(table).$(format) from data/$(format)/ into PostgreSQL table $(table)..."; \
+		$(DOCKER_COMPOSE) run --rm gdal sh -c \
+			'ogr2ogr -f "PostgreSQL" PG:"host=$$PGHOST dbname=$$PGDATABASE user=$$PGUSER password=$$PGPASSWORD port=$$PGPORT" /data/$(format)/$(table).$(format) -nlt PROMOTE_TO_MULTI -nln $(table) -lco GEOMETRY_NAME=geometry -t_srs EPSG:3857 -overwrite'; \
+	else \
+		echo "Scanning data/$(format)/ for *.$(format) files..."; \
+		$(DOCKER_COMPOSE) run --rm gdal sh -c \
+			"for file in /data/$(format)/*.$(format); do \
+				[ -e \"\$$file\" ] || continue; \
+				filename=\$${file##*/}; \
+				tablename=\$${filename%.*}; \
+				echo \"Importing \$$file into table \$$tablename...\"; \
+				ogr2ogr -f \"PostgreSQL\" PG:\"host=\$$PGHOST dbname=\$$PGDATABASE user=\$$PGUSER password=\$$PGPASSWORD port=\$$PGPORT\" \$$file -nlt PROMOTE_TO_MULTI -nln \$$tablename -lco GEOMETRY_NAME=geometry -t_srs EPSG:3857 -overwrite; \
+			done"; \
+	fi
+	@echo "Import custom data successfully!"
+
+.PHONY: clear-custom-data
+clear-custom-data: start-db
+	@if [ -z "$(table)" ]; then echo "ERROR: table is required. Example: make clear-custom-data table=admin"; exit 1; fi
+	@echo "Truncating table $(table)..."
+	$(DOCKER_COMPOSE) $(DC_CONFIG_CACHE) run $(DC_OPTS_CACHE) openmaptiles-tools psql.sh -c "TRUNCATE TABLE $(table) RESTART IDENTITY CASCADE;"
+
+.PHONY: remove-custom-data
+remove-custom-data: start-db
+	@if [ -z "$(table)" ]; then echo "ERROR: table is required. Example: make remove-custom-data table=admin"; exit 1; fi
+	@echo "Dropping table $(table)..."
+	$(DOCKER_COMPOSE) $(DC_CONFIG_CACHE) run $(DC_OPTS_CACHE) openmaptiles-tools psql.sh -c "DROP TABLE IF EXISTS $(table) CASCADE;"
 
 .PHONY: import-sql
 import-sql: all start-db-nowait
