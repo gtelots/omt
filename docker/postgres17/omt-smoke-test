@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+export PGHOST="${PGHOST:-127.0.0.1}"
+export PGPORT="${PGPORT:-5432}"
+export PGDATABASE="${PGDATABASE:-${POSTGRES_DB:-openmaptiles}}"
+export PGUSER="${PGUSER:-${POSTGRES_USER:-openmaptiles}}"
+export PGPASSWORD="${PGPASSWORD:-${POSTGRES_PASSWORD:-openmaptiles}}"
+
+psql \
+  -v ON_ERROR_STOP=1 \
+  --host "$PGHOST" \
+  --port "$PGPORT" \
+  --username "$PGUSER" \
+  --dbname "$PGDATABASE" \
+  --file /usr/local/share/openmaptiles/smoke-test.sql
